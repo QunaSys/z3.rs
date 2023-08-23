@@ -23,7 +23,11 @@ zip = { version = "~0.3.1", optional = true }
 reqwest = { version = "0.11", features = ["blocking"], optional = true }
 
 [features]
-# Enable this feature to statically link our own build of Z3, rather than
+# Enable this feature to statically link Z3 library, rather than
 # dynamically linking to the system's `libz3.so`.
-static-link-z3 = ["cmake"]
-download-z3 = ["sha2", "zip", "reqwest"]
+# If binary release of z3 is not available for the architecture,
+# then fallback to 'force-build-z3'.
+static-link-z3 = ["sha2", "zip", "reqwest", "cmake"]
+
+# Force to build z3 locally, which may reads to more efficiency.
+force-build-z3 = ["static-link-z3"]

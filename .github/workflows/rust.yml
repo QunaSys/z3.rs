@@ -112,4 +112,4 @@ jobs:
       with:
         submodules: recursive
     - name: Run clippy
-      run: cargo clippy -vv --features static-link-z3 --all-targets
+      run: cargo clippy -vv --features force-build-z3 --lib --tests

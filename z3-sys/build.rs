@@ -172,7 +172,7 @@ fn download_z3() -> Option<String> {
         .map_err(|e| e.to_string())?;
         if sha256 != "PASS" {
             let hash = Sha256::digest(&buf);
-            if &format!("{:x}", hash) != sha256 {
+            if format!("{:x}", hash) != sha256 {
                 return Err("Hash check failed".to_string());
             }
         }

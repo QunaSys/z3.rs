@@ -241,6 +241,9 @@ fn download_z3() -> Option<String> {
                 file.read_to_end(&mut buf).unwrap();
                 std::fs::create_dir_all(&out_dir).unwrap();
                 out_dir.push(path.file_name().unwrap());
+                if cfg(target_os = "windows") {
+                    out_dir.set_extension("a");
+                }
                 let mut outfile = File::create(&out_dir).unwrap();
                 outfile.write_all(&buf).unwrap();
             }

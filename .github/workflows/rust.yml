@@ -62,7 +62,7 @@ jobs:
         echo "Z3_SYS_Z3_HEADER=${PWD}\.tmp\${env:Z3_RELEASE}-x64-win\include\z3.h" >> $env:GITHUB_ENV
     - name: Config rust for windows
       if: matrix.os == 'windows-latest'
-      run: rustup set default-host x86_64-pc-windows-gnu
+      run: rustup set default-host x86_64-pc-windows-msvc
 
     - if: matrix.link == 'system'
       run: cargo build --workspace --all-targets

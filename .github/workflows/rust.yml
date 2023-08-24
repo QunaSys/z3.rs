@@ -68,9 +68,14 @@ jobs:
     - if: matrix.link == 'download'
       run: cargo test -vv --all --features static-link-z3
     - name: Run tests with `arbitrary-size-numeral` enabled
-      run: cargo test --manifest-path z3/Cargo.toml -vv --features arbitrary-size-numeral
-      # See above.
-      if: ${{ success() || failure() }}
+      if: matrix.link == 'system'
+      run: cargo test --manifest-path z3/Cargo.toml -vv --features=arbitrary-size-numeral
+    - name: Run tests with `arbitrary-size-numeral` enabled
+      if: matrix.link == 'build'
+      run: cargo test --manifest-path z3/Cargo.toml -vv --features=arbitrary-size-numeral --features=force-build-z3
+    - name: Run tests with `arbitrary-size-numeral` enabled
+      if: matrix.link == 'download'
+      run: cargo test --manifest-path z3/Cargo.toml -vv --features=arbitrary-size-numeral --features=static-link-z3
 
   build_on_wasm:
     runs-on: ubuntu-latest

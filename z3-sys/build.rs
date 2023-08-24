@@ -198,14 +198,20 @@ fn download_z3() -> Option<String> {
                 "91664cb7c10279e533f7ec568d63e0d04ada352217a6710655d41739c4ea1fc8".into(),
                 "libz3.a".into(),
             ))
-        } else if cfg!(target_os = "windows") && cfg!(target_arch = "x86_64") {
+        } else if cfg!(target_os = "windows")
+            && cfg!(target_arch = "x86_64")
+            && cfg!(target_env = "msvc")
+        {
             Some((
                 "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-win.zip"
                     .into(),
                 "ce2d658d007c4f5873d2279bd031d4e72500b388e1ef2d716bd5f86af19b20d2".into(),
                 "libz3.lib".into(),
             ))
-        } else if cfg!(target_os = "windows") && cfg!(target_arch = "x86") {
+        } else if cfg!(target_os = "windows")
+            && cfg!(target_arch = "x86")
+            && cfg!(target_env = "msvc")
+        {
             Some((
                 "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x86-win.zip"
                     .into(),
@@ -241,9 +247,6 @@ fn download_z3() -> Option<String> {
                 file.read_to_end(&mut buf).unwrap();
                 std::fs::create_dir_all(&out_dir).unwrap();
                 out_dir.push(path.file_name().unwrap());
-                if cfg!(target_os = "windows") {
-                    out_dir.set_extension("a");
-                }
                 let mut outfile = File::create(&out_dir).unwrap();
                 outfile.write_all(&buf).unwrap();
             }

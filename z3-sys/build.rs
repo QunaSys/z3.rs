@@ -200,14 +200,14 @@ fn download_z3() -> Option<String> {
                 "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-win.zip"
                     .into(),
                 "ce2d658d007c4f5873d2279bd031d4e72500b388e1ef2d716bd5f86af19b20d2".into(),
-                "libz3.a".into(),
+                "libz3.lib".into(),
             ))
         } else if cfg!(target_os = "windows") && cfg!(target_arch = "x86") {
             Some((
                 "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x86-win.zip"
                     .into(),
                 "1fbe8e2a87f42ca6f3348b8c48a1ffcd8fc376ac3144c9b588a5452de01ca2ef".into(),
-                "libz3.a".into(),
+                "libz3.lib".into(),
             ))
         } else {
             None

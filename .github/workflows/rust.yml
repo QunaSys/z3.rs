@@ -42,11 +42,14 @@ jobs:
       run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
       if: matrix.os == 'windows-latest'
     - name: Uninstall Z3 on Linux for non-system builds
-      if: matrix.os == 'ubuntu-latest' && matrix.link != 'system' 
+      if: matrix.os == 'ubuntu-latest' && matrix.link != 'system'
       run: sudo apt-get remove libz3-dev
+    - name: Install Z3 on macos
+      if: matrix.os == 'macos-latest' && matrix.link == 'system'
+      run: sudo apt-get install libz3-dev
 
     - name: Install Z3 on Windows for system builds
-      if: matrix.os == 'windows-latest' && matrix.link == 'system' 
+      if: matrix.os == 'windows-latest' && matrix.link == 'system'
       run: |
         mkdir .tmp
         curl.exe -L "https://github.com/Z3Prover/z3/releases/download/${env:Z3_RELEASE}/${env:Z3_RELEASE}-x64-win.zip" -o ".tmp/${env:Z3_RELEASE}-x64-win.zip"

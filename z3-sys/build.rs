@@ -82,8 +82,11 @@ fn prepare_z3() -> String {
 
         // The following linker flags are needed for `cargo test` to compile
         // test binaries.
-        #[cfg(target_os = "linux")]
+        #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
         {
+            if std::fs::read_dir(std::path::PathBuf::from("/usr/lib/x86_64-linux-gnu")).is_ok() {
+                println!("cargo:rustc-link-arg=-Lnative=/usr/lib/x86_64-linux-gnu");
+            }
             println!("cargo:rustc-link-arg=-Lnative=/usr/lib");
             println!("cargo:rustc-link-arg=-l{}", cxx);
         }

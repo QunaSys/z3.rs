@@ -65,11 +65,11 @@ jobs:
       run: rustup set default-host x86_64-pc-windows-msvc
 
     - if: matrix.link == 'system'
-      run: cargo build --workspace --all-targets
+      run: cargo build -vv --workspace --all-targets
     - if: matrix.link == 'build'
-      run: cargo build --workspace --all-targets --features force-build-z3
+      run: cargo build -vv --workspace --all-targets --features force-build-z3
     - if: matrix.link == 'download'
-      run: cargo build --workspace --all-targets --features static-link-z3
+      run: cargo build -vv --workspace --all-targets --features static-link-z3
     - if: matrix.link == 'system'
       run: cargo test -vv --all
     - if: matrix.link == 'build'

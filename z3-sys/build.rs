@@ -114,14 +114,14 @@ fn prepare_z3() -> String {
     if let Some(ret) = download_z3() {
         #[cfg(target_os = "windows")]
         {
-            println!("cargo:rustc-link-lib=dylib=msvcp140");
-            println!("cargo:rustc-link-lib=dylib=msvcp140_1");
-            println!("cargo:rustc-link-lib=dylib=msvcp140_2");
-            println!("cargo:rustc-link-lib=dylib=msvcp140_atomic_wait");
-            println!("cargo:rustc-link-lib=dylib=msvcp140_codecvt_ids");
-            println!("cargo:rustc-link-lib=dylib=vcomp140");
-            println!("cargo:rustc-link-lib=dylib=vcruntime140");
-            println!("cargo:rustc-link-lib=dylib=vcruntime140_1");
+            println!("cargo:rustc-link-lib=msvcp140");
+            println!("cargo:rustc-link-lib=msvcp140_1");
+            println!("cargo:rustc-link-lib=msvcp140_2");
+            println!("cargo:rustc-link-lib=msvcp140_atomic_wait");
+            println!("cargo:rustc-link-lib=msvcp140_codecvt_ids");
+            println!("cargo:rustc-link-lib=vcomp140");
+            println!("cargo:rustc-link-lib=vcruntime140");
+            println!("cargo:rustc-link-lib=vcruntime140_1");
         }
         return ret;
     }

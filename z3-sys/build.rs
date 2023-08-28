@@ -84,10 +84,23 @@ fn prepare_z3() -> String {
         // test binaries.
         #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
         {
-            if std::fs::read_dir(std::path::PathBuf::from("/usr/lib/x86_64-linux-gnu")).is_ok() {
-                println!("cargo:rustc-link-arg=-Lnative=/usr/lib/x86_64-linux-gnu");
+            let cxx_paths = [
+                "/usr/lib/gcc/x86_64-linux-gnu/13",
+                "/usr/lib/gcc/x86_64-linux-gnu/12",
+                "/usr/lib/gcc/x86_64-linux-gnu/10",
+                "/usr/lib/gcc/x86_64-linux-gnu/9",
+                "/usr/lib/gcc/x86_64-linux-gnu/8",
+                "/usr/lib/gcc/x86_64-linux-gnu/7",
+                "/usr/lib/x86_64-linux-gnu",
+                "/usr/lib64",
+                "/usr/lib",
+            ];
+
+            for path in cxx_paths {
+                if std::fs::read_dir(std::path::PathBuf::from(path)).is_ok() {
+                    println!("cargo:rustc-link-arg=-Lnative={}", path);
+                }
             }
-            println!("cargo:rustc-link-arg=-Lnative=/usr/lib");
             println!("cargo:rustc-link-arg=-l{}", cxx);
         }
     }

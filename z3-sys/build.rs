@@ -160,6 +160,7 @@ fn build_z3() -> String {
 fn download_z3() -> Option<String> {
     use reqwest::blocking;
     use sha2::{Digest, Sha256};
+    use std::ffi::OsStr;
     use std::fs::File;
     use std::io::{Cursor, Read, Write};
     use std::path::{Path, PathBuf};
@@ -179,24 +180,21 @@ fn download_z3() -> Option<String> {
         Ok(buf)
     }
 
-    fn get_archive_url() -> Option<(String, String, String)> {
+    fn get_archive_url() -> Option<(String, String)> {
         if cfg!(target_os = "linux") && cfg!(target_arch = "x86_64") {
             Some((
                 "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-glibc-2.35.zip".into(),
                 "c5360fd157b0f861ec8780ba3e51e2197e9486798dc93cd878df69a4b0c2b7c5".into(),
-                "libz3.a".into(),
             ))
         } else if cfg!(target_os = "macos") && cfg!(target_arch = "x86_64") {
             Some((
                 "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-osx-10.16.zip".into(),
                 "7601f844de6d906235140d0f76cca58be7ac716f3e2c29c35845aa24b24f73b9".into(),
-                "libz3.a".into(),
             ))
         } else if cfg!(target_os = "macos") && cfg!(target_arch = "aarch64") {
             Some((
                 "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-arm64-osx-11.0.zip".into(),
                 "91664cb7c10279e533f7ec568d63e0d04ada352217a6710655d41739c4ea1fc8".into(),
-                "libz3.a".into(),
             ))
         } else if cfg!(target_os = "windows")
             && cfg!(target_arch = "x86_64")
@@ -206,7 +204,6 @@ fn download_z3() -> Option<String> {
                 "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-win.zip"
                     .into(),
                 "ce2d658d007c4f5873d2279bd031d4e72500b388e1ef2d716bd5f86af19b20d2".into(),
-                "libz3.lib".into(),
             ))
         } else if cfg!(target_os = "windows")
             && cfg!(target_arch = "x86")
@@ -216,28 +213,39 @@ fn download_z3() -> Option<String> {
                 "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x86-win.zip"
                     .into(),
                 "1fbe8e2a87f42ca6f3348b8c48a1ffcd8fc376ac3144c9b588a5452de01ca2ef".into(),
-                "libz3.lib".into(),
             ))
         } else {
             None
         }
     }
 
+    fn find_origin_dir_and_get_successor_path(path: &Path, name: &OsStr) -> Option<PathBuf> {
+        let segs = path.parent()?.iter().collect::<Vec<_>>();
+        segs.iter()
+            .enumerate()
+            .find(|seg| *seg.1 == name)
+            .map(|(i, _)| {
+                segs[segs.len() - i..]
+                    .iter()
+                    .fold(PathBuf::new(), |path, seg| path.join(seg))
+            })
+    }
+
     fn write_lib_to_dir(out_dir: &Path) -> Option<()> {
-        let (url, hash, libname) = get_archive_url()?;
+        let (url, hash) = get_archive_url()?;
         let archive = download(&url, &hash).unwrap();
         let mut archive = ZipArchive::new(Cursor::new(archive)).unwrap();
         for i in 0..archive.len() {
             let mut file = archive.by_index(i).unwrap();
             let path = PathBuf::from(file.name());
-            let out_dir = if path.file_name().unwrap().to_str().unwrap() == libname {
-                let mut out_dir = out_dir.to_path_buf();
-                out_dir.push("lib");
-                Some(out_dir)
-            } else if path.iter().any(|seg| seg.to_str().unwrap() == "include") {
-                let mut out_dir = out_dir.to_path_buf();
-                out_dir.push("include");
-                Some(out_dir)
+            let out_dir = if let Some(succ) =
+                find_origin_dir_and_get_successor_path(&path, OsStr::new("bin"))
+            {
+                Some(out_dir.to_path_buf().join(Path::new("lib")).join(succ))
+            } else if let Some(succ) =
+                find_origin_dir_and_get_successor_path(&path, OsStr::new("include"))
+            {
+                Some(out_dir.to_path_buf().join(succ))
             } else {
                 None
             };
@@ -255,18 +263,18 @@ fn download_z3() -> Option<String> {
     }
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-    let mut out_dir_lib = out_dir.clone();
-    out_dir_lib.push("lib");
-    let mut out_dir_include = out_dir.clone();
-    out_dir_include.push("include");
     write_lib_to_dir(&out_dir)?;
     println!(
         "cargo:rustc-link-search=native={}",
-        out_dir_lib.to_str().unwrap()
+        out_dir
+            .clone()
+            .join(&PathBuf::from("lib"))
+            .to_str()
+            .unwrap()
     );
 
     Some(
-        std::fs::canonicalize(out_dir_include)
+        std::fs::canonicalize(out_dir.clone().join(&PathBuf::from("include")))
             .unwrap()
             .to_str()
             .unwrap()

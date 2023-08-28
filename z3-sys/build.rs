@@ -238,7 +238,7 @@ fn download_z3() -> Option<String> {
             .enumerate()
             .find(|seg| *seg.1 == name)
             .map(|(i, _)| {
-                segs[segs.len() - i..]
+                segs[segs.len() - i + 1..]
                     .iter()
                     .fold(PathBuf::new(), |path, seg| path.join(seg))
             })
@@ -258,7 +258,7 @@ fn download_z3() -> Option<String> {
             } else if let Some(succ) =
                 find_origin_dir_and_get_successor_path(&path, OsStr::new("include"))
             {
-                Some(out_dir.to_path_buf().join(succ))
+                Some(out_dir.to_path_buf().join(Path::new("include")).join(succ))
             } else {
                 None
             };

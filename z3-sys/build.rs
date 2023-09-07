@@ -113,17 +113,17 @@ fn prepare_z3() -> String {
     }
     #[cfg(not(feature = "force-build-z3"))]
     if let Some(ret) = download_z3() {
-        #[cfg(target_os = "windows")]
-        {
-            println!("cargo:rustc-link-lib=dylib=msvcp140");
-            println!("cargo:rustc-link-lib=dylib=msvcp140_1");
-            println!("cargo:rustc-link-lib=dylib=msvcp140_2");
-            println!("cargo:rustc-link-lib=dylib=msvcp140_atomic_wait");
-            println!("cargo:rustc-link-lib=dylib=msvcp140_codecvt_ids");
-            println!("cargo:rustc-link-lib=dylib=vcomp140");
-            println!("cargo:rustc-link-lib=dylib=vcruntime140");
-            println!("cargo:rustc-link-lib=dylib=vcruntime140_1");
-        }
+        // #[cfg(target_os = "windows")]
+        // {
+        //     println!("cargo:rustc-link-lib=dylib=msvcp140");
+        //     println!("cargo:rustc-link-lib=dylib=msvcp140_1");
+        //     println!("cargo:rustc-link-lib=dylib=msvcp140_2");
+        //     println!("cargo:rustc-link-lib=dylib=msvcp140_atomic_wait");
+        //     println!("cargo:rustc-link-lib=dylib=msvcp140_codecvt_ids");
+        //     println!("cargo:rustc-link-lib=dylib=vcomp140");
+        //     println!("cargo:rustc-link-lib=dylib=vcruntime140");
+        //     println!("cargo:rustc-link-lib=dylib=vcruntime140_1");
+        // }
         return ret;
     }
     build_z3()

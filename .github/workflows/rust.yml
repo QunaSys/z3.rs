@@ -38,6 +38,10 @@ jobs:
       with:
         version: "11.0"
         directory: ${{ runner.temp }}/llvm
+    - name: install c++ runtime on windows
+      if: startsWith(matrix.os, 'windows-')
+      shell: bash
+      run: choco install vcredist2017
     - name: Set LIBCLANG_PATH
       run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
       if: matrix.os == 'windows-latest'

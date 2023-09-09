@@ -70,9 +70,11 @@ jobs:
     - id: build-param
       shell: bash
       run: |
-        [[ ${{ matrix.link }} = "system" ]] && echo "param=" >> $GITHUB_OUTPUT || true
-          [[ ${{ matrix.link }} = "build" ]] && echo "param=--features force-build-z3" >> $GITHUB_OUTPUT || true
-        [[ ${{ matrix.link }} = "download" ]] && echo "param=--features static-link-z3" >> $GITHUB_OUTPUT || true
+        case "${{ matrix.link }}" in
+          "system" ) echo "param=" >> $GITHUB_OUTPUT ;;
+          "build" ) echo "param=--features force-build-z3" >> $GITHUB_OUTPUT ;;
+          "download" ) echo "param=--features static-link-z3" >> $GITHUB_OUTPUT ;;
+        esac
     - name: Build
       run: cargo build -vv --workspace --all-targets ${{ steps.build-param.outputs.param }}
     # Avoid to run rustdoc tests due to toolchain bug (https://github.com/rust-lang/cargo/issues/8531)

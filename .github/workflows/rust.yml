@@ -34,29 +34,28 @@ jobs:
         submodules: recursive
     - name: Install LLVM and Clang # required for bindgen to work, see https://github.com/rust-lang/rust-bindgen/issues/1797
       uses: KyleMayes/install-llvm-action@v1
-      if: matrix.os == 'windows-latest'
+      if: runner.os == 'Windows'
       with:
         version: "11.0"
         directory: ${{ runner.temp }}/llvm
     - name: install c++ runtime on windows
-      if: startsWith(matrix.os, 'windows-')
+      if: runner.os == 'Windows'
       shell: bash
-      run: choco install vcredist2017
-    - name: Set LIBCLANG_PATH
-      run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
-      if: matrix.os == 'windows-latest'
+      run: |
+        choco install vcredist2017
+        echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
     - name: Uninstall Z3 on Linux for non-system builds
-      if: matrix.os == 'ubuntu-latest' && matrix.link != 'system'
+      if: runner.os == 'Linux' && matrix.link != 'system'
       run: sudo apt-get remove libz3-dev
-    - name: enable homebrew
-      if: matrix.os == 'macos-latest' && matrix.link == 'system'
-      run: echo "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
-    - name: Install Z3 on macos
-      if: matrix.os == 'macos-latest' && matrix.link == 'system'
-      run: yes | brew install z3
+    - name: Install Z3 (macOS)
+      if: runner.os == 'macOS' && matrix.link == 'system'
+      shell: bash
+      run: |
+        echo "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
+        yes | brew install z3
 
     - name: Install Z3 on Windows for system builds
-      if: matrix.os == 'windows-latest' && matrix.link == 'system'
+      if: startsWith(matrix.os, 'windows-') && matrix.link == 'system'
       run: |
         mkdir .tmp
         curl.exe -L "https://github.com/Z3Prover/z3/releases/download/${env:Z3_RELEASE}/${env:Z3_RELEASE}-x64-win.zip" -o ".tmp/${env:Z3_RELEASE}-x64-win.zip"
@@ -69,26 +68,32 @@ jobs:
       run: rustup set default-host x86_64-pc-windows-msvc
 
     - if: matrix.link == 'system'
-      run: cargo build -vv --workspace --all-targets
+      id: build-param
+      shell: bash
+      run: echo "param=" >> $GITHUB_OUTPUT
     - if: matrix.link == 'build'
-      run: cargo build -vv --workspace --all-targets --features force-build-z3
+      id: build-param
+      shell: bash
+      run: echo "param=--features force-build-z3" >> $GITHUB_OUTPUT
     - if: matrix.link == 'download'
-      run: cargo build -vv --workspace --all-targets --features static-link-z3
-    - if: matrix.link == 'system'
-      run: cargo test -vv --all
-    - if: matrix.link == 'build'
-      run: cargo test -vv --all --features force-build-z3
-    - if: matrix.link == 'download'
-      run: cargo test -vv --all --features static-link-z3
-    - name: Run tests with `arbitrary-size-numeral` enabled
-      if: matrix.link == 'system'
+      id: build-param
+      shell: bash
+      run: echo "param=--features static-link-z3" >> $GITHUB_OUTPUT
+    - name: Build
+      run: cargo build -vv --workspace --all-targets ${{ steps.build-param.outputs.param }}
+    # Avoid to run rustdoc tests due to toolchain bug (https://github.com/rust-lang/cargo/issues/8531)
+    - name: Run tests (non-Windows)
+      if: runner.os != 'Windows'
+      run: cargo test -vv --workspace ${{ steps.build-param.outputs.param }}
+    - name: Run tests (Windows)
+      if: runner.os == 'Windows'
+      run: cargo test -vv --workspace --tests ${{ steps.build-param.outputs.param }}
+    - name: Run tests with `arbitrary-size-numeral` enabled (non-Windows)
+      if: runner.os != 'Windows'
       run: cargo test --manifest-path z3/Cargo.toml -vv --features=arbitrary-size-numeral
-    - name: Run tests with `arbitrary-size-numeral` enabled
-      if: matrix.link == 'build'
-      run: cargo test --manifest-path z3/Cargo.toml -vv --features=arbitrary-size-numeral --features=force-build-z3
-    - name: Run tests with `arbitrary-size-numeral` enabled
-      if: matrix.link == 'download'
-      run: cargo test --manifest-path z3/Cargo.toml -vv --features=arbitrary-size-numeral --features=static-link-z3
+    - name: Run tests with `arbitrary-size-numeral` enabled (Windows)
+      if: runner.os == 'Windows'
+      run: cargo test --manifest-path z3/Cargo.toml --tests -vv --features=arbitrary-size-numeral ${{ steps.build-param.outputs.param }}
 
   build_on_wasm:
     runs-on: ubuntu-latest

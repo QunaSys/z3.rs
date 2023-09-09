@@ -67,18 +67,12 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: rustup set default-host x86_64-pc-windows-msvc
 
-    - if: matrix.link == 'system'
-      id: build-param
+    - id: build-param
       shell: bash
-      run: echo "param=" >> $GITHUB_OUTPUT
-    - if: matrix.link == 'build'
-      id: build-param
-      shell: bash
-      run: echo "param=--features force-build-z3" >> $GITHUB_OUTPUT
-    - if: matrix.link == 'download'
-      id: build-param
-      shell: bash
-      run: echo "param=--features static-link-z3" >> $GITHUB_OUTPUT
+      run: |
+        [[ ${{ matrix.link }} = "system" ]] && echo "param=" >> $GITHUB_OUTPUT
+        [[ ${{ matrix.link }} = "build" ]] && echo "param=--features force-build-z3" >> $GITHUB_OUTPUT
+        [[ ${{ matrix.link }} = "download" ]] && echo "param=--features static-link-z3" >> $GITHUB_OUTPUT
     - name: Build
       run: cargo build -vv --workspace --all-targets ${{ steps.build-param.outputs.param }}
     # Avoid to run rustdoc tests due to toolchain bug (https://github.com/rust-lang/cargo/issues/8531)

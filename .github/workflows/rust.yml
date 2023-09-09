@@ -86,7 +86,7 @@ jobs:
       run: cargo test -vv --workspace --tests ${{ steps.build-param.outputs.param }}
     - name: Run tests with `arbitrary-size-numeral` enabled (non-Windows)
       if: runner.os != 'Windows'
-      run: cargo test --manifest-path z3/Cargo.toml -vv --features=arbitrary-size-numeral
+      run: cargo test --manifest-path z3/Cargo.toml -vv --features=arbitrary-size-numeral ${{ steps.build-param.outputs.param }}
     - name: Run tests with `arbitrary-size-numeral` enabled (Windows)
       if: runner.os == 'Windows'
       run: cargo test --manifest-path z3/Cargo.toml --tests -vv --features=arbitrary-size-numeral ${{ steps.build-param.outputs.param }}

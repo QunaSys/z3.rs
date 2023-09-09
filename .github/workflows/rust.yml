@@ -47,12 +47,15 @@ jobs:
     - name: Uninstall Z3 on Linux for non-system builds
       if: runner.os == 'Linux' && matrix.link != 'system'
       run: sudo apt-get remove libz3-dev
-    - name: Install Z3 (macOS)
+    - name: Setup homebrew (macOS)
       if: runner.os == 'macOS' && matrix.link == 'system'
       shell: bash
       run: |
         echo "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
-        yes | brew install z3
+    - name: Install Z3 (macOS)
+      if: runner.os == 'macOS' && matrix.link == 'system'
+      shell: bash
+      run: yes | brew install z3
 
     - name: Install Z3 on Windows for system builds
       if: startsWith(matrix.os, 'windows-') && matrix.link == 'system'

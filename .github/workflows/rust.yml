@@ -55,7 +55,7 @@ jobs:
     - name: Install Z3 (macOS)
       if: runner.os == 'macOS' && matrix.link == 'system'
       shell: bash
-      run: yes | brew install z3
+      run: (yes | true) | brew install z3
 
     - name: Install Z3 on Windows for system builds
       if: startsWith(matrix.os, 'windows-') && matrix.link == 'system'

@@ -198,6 +198,7 @@ fn download_z3() -> Option<String> {
         .map_err(|e| e.to_string())?;
         if sha256 != "PASS" {
             let hash = Sha256::digest(&buf);
+            println!("{:?}", format!("{:x}", hash));
             if format!("{:x}", hash) != sha256 {
                 return Err("Hash check failed".to_string());
             }
@@ -207,10 +208,29 @@ fn download_z3() -> Option<String> {
 
     fn get_archive_url() -> Option<(String, String)> {
         if cfg!(target_os = "linux") && cfg!(target_arch = "x86_64") {
-            Some((
-                "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-glibc-2.35.zip".into(),
-                "c5360fd157b0f861ec8780ba3e51e2197e9486798dc93cd878df69a4b0c2b7c5".into(),
-            ))
+            let output = std::process::Command::new("ldd")
+                .arg("--version")
+                .output()
+                .expect("Failed to run ldd");
+
+            let output_str = String::from_utf8_lossy(&output.stdout);
+            if output_str.contains("2.31") {
+                Some((
+                    "https://github.com/Z3Prover/z3/releases/download/z3-4.12.2/z3-4.12.2-x64-glibc-2.31.zip".into(),
+                    "a198851a7403d8b25bab920bd4a4792efe1af5c28a5a932d840af0472d3a83eb".into(),
+                ))
+            } else if output_str.contains("2.35") {
+                Some((
+                    "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-glibc-2.35.zip".into(),
+                    "c5360fd157b0f861ec8780ba3e51e2197e9486798dc93cd878df69a4b0c2b7c5".into(),
+                ))
+            }
+            else {
+                println!("{:?}", output_str);
+                panic!()
+            }
+
+            
         } else if cfg!(target_os = "macos") && cfg!(target_arch = "x86_64") {
             Some((
                 "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-osx-10.16.zip".into(),

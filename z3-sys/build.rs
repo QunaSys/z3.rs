@@ -224,13 +224,10 @@ fn download_z3() -> Option<String> {
                     "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-glibc-2.35.zip".into(),
                     "c5360fd157b0f861ec8780ba3e51e2197e9486798dc93cd878df69a4b0c2b7c5".into(),
                 ))
-            }
-            else {
+            } else {
                 println!("{:?}", output_str);
                 panic!()
             }
-
-            
         } else if cfg!(target_os = "macos") && cfg!(target_arch = "x86_64") {
             Some((
                 "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-osx-10.16.zip".into(),

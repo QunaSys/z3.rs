@@ -19,7 +19,16 @@ fn smoketest() {
 
         let const_x = Z3_mk_const(ctx, sym_x, int_sort);
         let const_y = Z3_mk_const(ctx, sym_y, int_sort);
-        let gt = Z3_mk_gt(ctx, const_x, const_y);
+        let const_zero = Z3_mk_int(ctx, 0, int_sort);
+        let gt = Z3_mk_and(
+            ctx,
+            2,
+            [
+                Z3_mk_gt(ctx, const_x, const_y),
+                Z3_mk_gt(ctx, const_y, const_zero),
+            ]
+            .as_ptr(),
+        );
 
         let solver = Z3_mk_simple_solver(ctx);
         Z3_solver_assert(ctx, solver, gt);
@@ -33,8 +42,8 @@ fn smoketest() {
         let model_str = CStr::from_ptr(model_s).to_str().unwrap();
         let model_elements = model_str.split_terminator('\n').collect::<Vec<_>>();
         assert_eq!(model_elements.len(), 2);
-        assert!(model_elements.contains(&"y -> (- 1)"));
-        assert!(model_elements.contains(&"x -> 0"));
+        assert!(model_elements.contains(&"y -> 1"));
+        assert!(model_elements.contains(&"x -> 2"));
 
         // Grab the actual constant values out of the model
         let mut interp_x: Z3_ast = const_x;
@@ -46,8 +55,8 @@ fn smoketest() {
         let mut val_y: i32 = -5;
         assert!(Z3_get_numeral_int(ctx, interp_x, &mut val_x));
         assert!(Z3_get_numeral_int(ctx, interp_y, &mut val_y));
-        assert_eq!(val_x, 0);
-        assert_eq!(val_y, -1);
+        assert_eq!(val_x, 2);
+        assert_eq!(val_y, 1);
 
         Z3_del_context(ctx);
         Z3_del_config(cfg);

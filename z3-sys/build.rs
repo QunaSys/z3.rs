@@ -198,7 +198,6 @@ fn download_z3() -> Option<String> {
         .map_err(|e| e.to_string())?;
         if sha256 != "PASS" {
             let hash = Sha256::digest(&buf);
-            println!("{:?}", format!("{:x}", hash));
             if format!("{:x}", hash) != sha256 {
                 return Err("Hash check failed".to_string());
             }
@@ -219,14 +218,11 @@ fn download_z3() -> Option<String> {
                     "https://github.com/Z3Prover/z3/releases/download/z3-4.12.2/z3-4.12.2-x64-glibc-2.31.zip".into(),
                     "a198851a7403d8b25bab920bd4a4792efe1af5c28a5a932d840af0472d3a83eb".into(),
                 ))
-            } else if output_str.contains("2.35") {
+            } else {
                 Some((
                     "https://github.com/Z3Prover/z3/releases/download/z3-4.12.2/z3-4.12.2-x64-glibc-2.35.zip".into(),
                     "29604c87d74855690f5f43fa2ecb8e214af89bdddffac378ce403e29c6ea30ec".into(),
                 ))
-            } else {
-                println!("{:?}", output_str);
-                panic!()
             }
         } else if cfg!(target_os = "macos") && cfg!(target_arch = "x86_64") {
             Some((

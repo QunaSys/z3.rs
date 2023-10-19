@@ -207,37 +207,50 @@ fn download_z3() -> Option<String> {
 
     fn get_archive_url() -> Option<(String, String)> {
         if cfg!(target_os = "linux") && cfg!(target_arch = "x86_64") {
-            Some((
-                "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-glibc-2.35.zip".into(),
-                "c5360fd157b0f861ec8780ba3e51e2197e9486798dc93cd878df69a4b0c2b7c5".into(),
-            ))
+            let output = std::process::Command::new("ldd")
+                .arg("--version")
+                .output()
+                .expect("Failed to run ldd");
+
+            let output_str = String::from_utf8_lossy(&output.stdout);
+            if output_str.contains("2.31") {
+                Some((
+                    "https://github.com/Z3Prover/z3/releases/download/z3-4.12.2/z3-4.12.2-x64-glibc-2.31.zip".into(),
+                    "a198851a7403d8b25bab920bd4a4792efe1af5c28a5a932d840af0472d3a83eb".into(),
+                ))
+            } else {
+                Some((
+                    "https://github.com/Z3Prover/z3/releases/download/z3-4.12.2/z3-4.12.2-x64-glibc-2.35.zip".into(),
+                    "29604c87d74855690f5f43fa2ecb8e214af89bdddffac378ce403e29c6ea30ec".into(),
+                ))
+            }
         } else if cfg!(target_os = "macos") && cfg!(target_arch = "x86_64") {
             Some((
-                "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-osx-10.16.zip".into(),
-                "7601f844de6d906235140d0f76cca58be7ac716f3e2c29c35845aa24b24f73b9".into(),
+                "https://github.com/Z3Prover/z3/releases/download/z3-4.12.2/z3-4.12.2-x64-osx-10.16.zip".into(),
+                "7f5ed527c022683d663108cdd00a2c89f43ae231b26fe7baf8b0b89bbf7d2aa7".into(),
             ))
         } else if cfg!(target_os = "macos") && cfg!(target_arch = "aarch64") {
             Some((
-                "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-arm64-osx-11.0.zip".into(),
-                "91664cb7c10279e533f7ec568d63e0d04ada352217a6710655d41739c4ea1fc8".into(),
+                "https://github.com/Z3Prover/z3/releases/download/z3-4.12.2/z3-4.12.2-arm64-osx-11.0.zip".into(),
+                "2509f1a5250c70679347b3878b980a42640cd0b603bc87716f991d078b5a5959".into(),
             ))
         } else if cfg!(target_os = "windows")
             && cfg!(target_arch = "x86_64")
             && cfg!(target_env = "msvc")
         {
             Some((
-                "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-win.zip"
+                "https://github.com/Z3Prover/z3/releases/download/z3-4.12.2/z3-4.12.2-x64-win.zip"
                     .into(),
-                "ce2d658d007c4f5873d2279bd031d4e72500b388e1ef2d716bd5f86af19b20d2".into(),
+                "ea33132e4531dbdc2c98b5f3c01257ca2f954e0f9c9115e63ea4e2530550e1d4".into(),
             ))
         } else if cfg!(target_os = "windows")
             && cfg!(target_arch = "x86")
             && cfg!(target_env = "msvc")
         {
             Some((
-                "https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x86-win.zip"
+                "https://github.com/Z3Prover/z3/releases/download/z3-4.12.2/z3-4.12.2-x86-win.zip"
                     .into(),
-                "1fbe8e2a87f42ca6f3348b8c48a1ffcd8fc376ac3144c9b588a5452de01ca2ef".into(),
+                "39c5f72eb7fcb4cdf6d5019fb22d13b40efc1c90cfc36c7f92adc9d1774091bd".into(),
             ))
         } else {
             None

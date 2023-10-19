@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, ubuntu-20.04, windows-latest, macos-latest]
         link: [download, build, system]
     runs-on: ${{ matrix.os }}
     steps:
@@ -45,7 +45,7 @@ jobs:
         choco install vcredist2017
         echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
     - name: Uninstall Z3 on Linux for non-system builds
-      if: runner.os == 'Linux' && matrix.link != 'system'
+      if: (matrix.os == 'ubuntu-latest' || matrix.os == 'ubuntu-20.04') && matrix.link != 'system'
       run: sudo apt-get remove libz3-dev
     - name: Setup homebrew (macOS)
       if: runner.os == 'macOS' && matrix.link == 'system'
